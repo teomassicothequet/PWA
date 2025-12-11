@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Météo PWA</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4a90e2">
+</head>
+<body>
+
+    <div class="app-container">
+        <header>
+            <h1>Météo PWA 🌦️</h1>
+            <button id="theme-toggle" class="icon-btn" aria-label="Changer le thème">🌓</button>
+        </header>
+
+        <div class="controls">
+            <button id="notify-btn" class="notify-btn">🔔 Activer les notifications</button>
+        </div>
+
+        <div class="search-box">
+            <input type="text" id="city-input" placeholder="Entrez une ville (ex: Paris)...">
+            <button id="search-btn" onclick="handleSearch()">🔍</button>
+        </div>
+
+        <div id="error-message" class="message error hidden"></div>
+        <div id="loading" class="message loading hidden">Chargement des données... ⏳</div>
+
+        <section id="weather-section" class="weather-card hidden">
+            <div class="card-header">
+                <h2 id="city-name">Ville</h2>
+                <button id="favorite-btn" class="icon-btn">❤️</button>
+            </div>
+
+            <div class="current-weather">
+                <div id="weather-icon" class="large-icon">☀️</div>
+                <div class="temp-container">
+                    <span id="temperature">--</span><span class="unit">°C</span>
+                </div>
+            </div>
+
+            <div class="details-grid">
+                <div class="detail-item">
+                    <span>Vent</span>
+                    <strong id="wind">-- km/h</strong>
+                </div>
+                <div class="detail-item">
+                    <span>Humidité</span>
+                    <strong id="humidity">-- %</strong>
+                </div>
+                <div class="detail-item">
+                    <span>Ressenti</span>
+                    <strong id="feels-like">-- °C</strong>
+                </div>
+            </div>
+
+            <h3>Prochaines heures</h3>
+            <div id="hourly-list" class="hourly-container">
+                </div>
+        </section>
+
+        <section id="favorites-section" class="favorites-section hidden">
+            <h3>Mes Favoris</h3>
+            <ul id="favorites-list"></ul>
+        </section>
+    </div>
+
+    <script src="app.js"></script>
+    
+    <script>
+        document.getElementById('search-btn').addEventListener('click', handleSearch);
+        document.getElementById('city-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleSearch();
+        });
+        document.getElementById('notify-btn').addEventListener('click', requestNotificationPermission);
+    </script>
+</body>
+</html>

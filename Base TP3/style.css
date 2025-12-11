@@ -1,0 +1,209 @@
+:root {
+    --primary-color: #4a90e2;
+    --bg-color: #f0f4f8;
+    --card-bg: #ffffff;
+    --text-color: #333333;
+    --text-secondary: #666666;
+    --danger: #ff4757;
+    --success: #2ecc71;
+    --radius: 16px;
+    --shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.app-container {
+    width: 100%;
+    max-width: 480px; /* Taille mobile */
+    background: var(--bg-color);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* En-tête */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+h1 { font-size: 1.5rem; }
+
+/* Boutons */
+button {
+    cursor: pointer;
+    border: none;
+    font-family: inherit;
+    transition: transform 0.1s;
+}
+
+button:active { transform: scale(0.95); }
+
+.icon-btn {
+    background: none;
+    font-size: 1.5rem;
+    padding: 5px;
+}
+
+.notify-btn {
+    width: 100%;
+    padding: 10px;
+    border-radius: var(--radius);
+    background-color: #e1e8ef;
+    color: var(--text-color);
+    font-weight: 600;
+}
+
+.notify-btn.granted { background-color: var(--success); color: white; }
+.notify-btn.denied { background-color: var(--danger); color: white; }
+
+/* Recherche */
+.search-box {
+    display: flex;
+    gap: 10px;
+}
+
+#city-input {
+    flex: 1;
+    padding: 12px;
+    border: 2px solid transparent;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    font-size: 1rem;
+    outline: none;
+}
+
+#city-input:focus { border-color: var(--primary-color); }
+
+#search-btn {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0 20px;
+    border-radius: var(--radius);
+    font-size: 1.2rem;
+    box-shadow: var(--shadow);
+}
+
+/* Carte Météo */
+.weather-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+    animation: fadeIn 0.5s ease-out;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.current-weather {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.large-icon { font-size: 4rem; margin-bottom: 10px; }
+
+.temp-container {
+    font-size: 3.5rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.unit { font-size: 1.5rem; color: var(--text-secondary); }
+
+/* Grille de détails */
+.details-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 30px;
+    text-align: center;
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 12px;
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.detail-item span { font-size: 0.8rem; color: var(--text-secondary); }
+.detail-item strong { font-size: 1.1rem; }
+
+/* Prévisions horaires */
+.hourly-container {
+    display: flex;
+    overflow-x: auto;
+    gap: 10px;
+    padding-bottom: 10px;
+    scrollbar-width: none; /* Firefox */
+}
+
+.hourly-container::-webkit-scrollbar { display: none; /* Chrome/Safari */ }
+
+.hourly-item {
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 12px;
+    min-width: 70px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    border: 2px solid transparent;
+}
+
+.hourly-time { font-size: 0.8rem; color: var(--text-secondary); }
+.hourly-icon { font-size: 1.5rem; }
+.hourly-temp { font-weight: bold; }
+
+/* Alertes (Classes utilisées dans le JS) */
+.rain-alert {
+    background-color: #e3f2fd;
+    border-color: #2196f3;
+}
+
+.temp-alert {
+    background-color: #ffebee;
+    border-color: #ef5350;
+}
+
+/* Utilitaires */
+.hidden { display: none !important; }
+
+.message {
+    text-align: center;
+    padding: 10px;
+    border-radius: 8px;
+    margin: 10px 0;
+}
+
+.error { background-color: #ffebee; color: var(--danger); }
+.loading { color: var(--text-secondary); }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
