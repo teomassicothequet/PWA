@@ -4,17 +4,17 @@ const CACHE_NAME = 'meteo-pwa-v1';
 const ASSETS = [
     '/',
     '/index.html',
-    '/Base TP3/style.css',
-    '/Base TP3/app.js',
-    '/Base TP3/manifest.json',
-    '/Base TP3/icons/icon-72.png',
-    '/Base TP3/icons/icon-96.png',
-    '/Base TP3/icons/icon-128.png',
-    '/Base TP3/icons/icon-144.png',
-    '/Base TP3/icons/icon-152.png',
-    '/Base TP3/icons/icon-192.png',
-    '/Base TP3/icons/icon-384.png',
-    '/Base TP3/icons/icon-512.png'
+    '/style.css',
+    '/app.js',
+    '/manifest.json',
+    '/icons/icon-72.png',
+    '/icons/icon-96.png',
+    '/icons/icon-128.png',
+    '/icons/icon-144.png',
+    '/icons/icon-152.png',
+    '/icons/icon-192.png',
+    '/icons/icon-384.png',
+    '/icons/icon-512.png'
 ];
 
 // ===== INSTALL =====
