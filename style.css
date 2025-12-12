@@ -207,3 +207,53 @@ button:active { transform: scale(0.95); }
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+/* ===== DARK MODE ===== */
+body.dark-mode {
+    --bg-color: #1a1a1a;        /* Fond noir gris */
+    --card-bg: #2d2d2d;         /* Cartes gris foncé */
+    --text-color: #ffffff;      /* Texte blanc */
+    --text-secondary: #aaaaaa;  /* Texte secondaire gris clair */
+    --shadow: 0 4px 15px rgba(0,0,0,0.4); /* Ombres plus fortes */
+}
+
+/* Ajustement spécifique pour les éléments en mode sombre */
+body.dark-mode .notify-btn {
+    background-color: #3d3d3d;
+    color: white;
+}
+
+body.dark-mode .hourly-item, 
+body.dark-mode .details-grid {
+    background-color: #363636;
+}
+
+body.dark-mode #city-input {
+    background-color: #363636;
+    color: white;
+}
+
+/* Style pour la liste des favoris */
+.favorite-item {
+    background: var(--card-bg);
+    padding: 10px 15px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: var(--shadow);
+    transition: transform 0.2s;
+}
+
+.favorite-item:hover {
+    transform: scale(1.02);
+}
+
+.delete-fav {
+    background: none;
+    color: var(--danger);
+    font-size: 1.2rem;
+    padding: 5px;
+}

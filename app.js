@@ -5,7 +5,7 @@ const CONFIG = {
     STORAGE_KEY_FAVORITES: 'meteo-pwa-favorites',
     STORAGE_KEY_THEME: 'meteo-pwa-theme',
     RAIN_CODES: [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 71, 73, 75, 77, 80, 81, 82, 85, 86, 95, 96, 99],
-    TEMP_THRESHOLD: 10 // Température seuil pour notification
+    TEMP_THRESHOLD: 10 // Température seuil pour notification 
 };
 
 // ===== Éléments DOM =====
@@ -36,6 +36,13 @@ let currentCity = null;
 document.addEventListener('DOMContentLoaded', () => {
     updateNotifyButton();
     registerServiceWorker();
+    // NOUVEAU : Initialiser le thème et les favoris
+    initTheme();
+    loadFavorites();
+
+    // Écouteurs d'événements
+    elements.themeToggle.addEventListener('click', toggleTheme);
+    elements.favoriteBtn.addEventListener('click', toggleFavorite);
 });
 
 // ===== Service Worker =====
@@ -61,7 +68,7 @@ function updateNotifyButton() {
         elements.notifyBtn.disabled = true;
         return;
     }
-    
+
     if (!('Notification' in window)) {
         elements.notifyBtn.textContent = '🔔 Notifications non supportées';
         elements.notifyBtn.disabled = true;
@@ -69,7 +76,7 @@ function updateNotifyButton() {
     }
 
     const permission = Notification.permission;
-    
+
     if (permission === 'granted') {
         elements.notifyBtn.textContent = '✅ Notifications activées';
         elements.notifyBtn.classList.add('granted');
@@ -98,7 +105,7 @@ async function requestNotificationPermission() {
     try {
         const permission = await Notification.requestPermission();
         updateNotifyButton();
-        
+
         if (permission === 'granted') {
             // Notification de test
             new Notification('MétéoPWA', {
@@ -113,12 +120,12 @@ async function requestNotificationPermission() {
 }
 
 function sendWeatherNotification(city, message, type = 'info') {
-  
+
 }
 // ===== Recherche et API Météo =====
 async function handleSearch() {
     const query = elements.cityInput.value.trim();
-    
+
     if (!query) {
         showError('Veuillez entrer un nom de ville.');
         return;
@@ -132,21 +139,21 @@ async function handleSearch() {
         const geoResponse = await fetch(
             `${CONFIG.GEOCODING_API}?name=${encodeURIComponent(query)}&count=1&language=fr&format=json`
         );
-        
+
         if (!geoResponse.ok) throw new Error('Erreur de géocodage');
-        
+
         const geoData = await geoResponse.json();
-        
+
         if (!geoData.results || geoData.results.length === 0) {
             throw new Error(`Ville "${query}" non trouvée. Vérifiez l'orthographe.`);
         }
 
         const location = geoData.results[0];
         const cityName = `${location.name}${location.admin1 ? ', ' + location.admin1 : ''}, ${location.country}`;
-        
+
         // 2. Récupérer la météo
         await fetchWeather(location.latitude, location.longitude, cityName);
-        
+
     } catch (error) {
         hideLoading();
         showError(error.message);
@@ -168,18 +175,21 @@ async function fetchWeather(lat, lon, cityName) {
         if (!weatherResponse.ok) throw new Error('Erreur lors de la récupération des données météo');
 
         const weatherData = await weatherResponse.json();
-        
+
         // Sauvegarder la ville courante
         currentCity = { name: cityName, lat, lon };
-        
+
         // Afficher les résultats
         displayWeather(weatherData, cityName);
-        
+
+        // AJOUTE CETTE LIGNE ICI :
+        updateFavoriteButton(cityName)
+
         // Vérifier les alertes pour les 4 prochaines heures
         checkWeatherAlerts(weatherData, cityName);
-        
+
         hideLoading();
-        
+
     } catch (error) {
         hideLoading();
         showError(error.message);
@@ -201,7 +211,7 @@ function displayWeather(data, cityName) {
     // Prévisions horaires (4 prochaines heures)
     const currentHour = new Date().getHours();
     const hourlyItems = [];
-    
+
     for (let i = 0; i < 4; i++) {
         const hourIndex = currentHour + i + 1;
         if (hourIndex < hourly.time.length) {
@@ -210,7 +220,7 @@ function displayWeather(data, cityName) {
             const code = hourly.weather_code[hourIndex];
             const isRain = CONFIG.RAIN_CODES.includes(code);
             const isHighTemp = temp > CONFIG.TEMP_THRESHOLD;
-            
+
             let alertClass = '';
             if (isRain) alertClass = 'rain-alert';
             else if (isHighTemp) alertClass = 'temp-alert';
@@ -232,7 +242,7 @@ function displayWeather(data, cityName) {
 function checkWeatherAlerts(data, cityName) {
     const hourly = data.hourly;
     const currentHour = new Date().getHours();
-    
+
     let rainAlert = false;
     let tempAlert = false;
     let rainHour = null;
@@ -244,13 +254,13 @@ function checkWeatherAlerts(data, cityName) {
         if (hourIndex < hourly.time.length) {
             const code = hourly.weather_code[hourIndex];
             const temp = hourly.temperature_2m[hourIndex];
-            
+
             // Vérifier la pluie
             if (!rainAlert && CONFIG.RAIN_CODES.includes(code)) {
                 rainAlert = true;
                 rainHour = i;
             }
-            
+
             // Vérifier la température > 10°C
             if (!tempAlert && temp > CONFIG.TEMP_THRESHOLD) {
                 tempAlert = true;
@@ -309,7 +319,7 @@ function getWeatherEmoji(code) {
         96: '⛈️',     // Thunderstorm with slight hail
         99: '⛈️'      // Thunderstorm with heavy hail
     };
-    
+
     return weatherEmojis[code] || '🌤️';
 }
 
@@ -330,3 +340,99 @@ function showError(message) {
 function hideError() {
     elements.errorMessage.classList.add('hidden');
 }
+
+// ===== GESTION DU THÈME (DARK MODE) =====
+function initTheme() {
+    const savedTheme = localStorage.getItem(CONFIG.STORAGE_KEY_THEME);
+
+    // Si l'utilisateur a déjà choisi "dark" ou s'il n'a rien choisi mais que son système est en sombre
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+        document.body.classList.add('dark-mode');
+        elements.themeToggle.textContent = '☀️'; // Change l'icône en soleil
+    }
+}
+
+function toggleTheme() {
+    document.body.classList.toggle('dark-mode');
+
+    const isDark = document.body.classList.contains('dark-mode');
+    elements.themeToggle.textContent = isDark ? '☀️' : '🌓';
+
+    // Sauvegarde la préférence
+    localStorage.setItem(CONFIG.STORAGE_KEY_THEME, isDark ? 'dark' : 'light');
+}
+
+// ===== GESTION DES FAVORIS =====
+function loadFavorites() {
+    const favorites = JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEY_FAVORITES)) || [];
+
+    if (favorites.length > 0) {
+        elements.favoritesSection.classList.remove('hidden');
+        elements.favoritesList.innerHTML = favorites.map(city => `
+            <li class="favorite-item" onclick="handleSearchFromFavorite('${city}')">
+                <span>${city}</span>
+                <button class="delete-fav" onclick="removeFavorite(event, '${city}')">🗑️</button>
+            </li>
+        `).join('');
+    } else {
+        elements.favoritesSection.classList.add('hidden');
+    }
+}
+
+function toggleFavorite() {
+    if (!currentCity) return; // Pas de ville chargée
+
+    let favorites = JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEY_FAVORITES)) || [];
+    const cityName = currentCity.name; // Récupéré depuis la variable globale définie plus haut
+
+    const index = favorites.indexOf(cityName);
+
+    if (index === -1) {
+        // Ajouter
+        favorites.push(cityName);
+        elements.favoriteBtn.textContent = '❤️'; // Cœur plein
+    } else {
+        // Retirer
+        favorites.splice(index, 1);
+        elements.favoriteBtn.textContent = '🤍'; // Cœur vide (ou l'icône de base)
+    }
+
+    localStorage.setItem(CONFIG.STORAGE_KEY_FAVORITES, JSON.stringify(favorites));
+    loadFavorites();
+}
+
+function updateFavoriteButton(cityName) {
+    const favorites = JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEY_FAVORITES)) || [];
+    if (favorites.includes(cityName)) {
+        elements.favoriteBtn.textContent = '❤️';
+    } else {
+        elements.favoriteBtn.textContent = '🤍'; // Remets l'icône de base
+    }
+}
+
+function removeFavorite(event, cityName) {
+    event.stopPropagation(); // Empêche de lancer la recherche quand on clique sur la poubelle
+    let favorites = JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEY_FAVORITES)) || [];
+    favorites = favorites.filter(city => city !== cityName);
+
+    localStorage.setItem(CONFIG.STORAGE_KEY_FAVORITES, JSON.stringify(favorites));
+    loadFavorites();
+
+    // Si la ville supprimée est celle affichée, mettre à jour le bouton
+    if (currentCity && currentCity.name === cityName) {
+        elements.favoriteBtn.textContent = '🤍';
+    }
+}
+
+function handleSearchFromFavorite(cityName) {
+    elements.cityInput.value = cityName;
+    handleSearch();
+}
+
+document.getElementById('search-btn').addEventListener('click', handleSearch);
+document.getElementById('city-input').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') handleSearch();
+});
+document.getElementById('notify-btn').addEventListener('click', requestNotificationPermission);

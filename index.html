@@ -1,25 +1,27 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Météo PWA</title>
+    <title>Météo</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#4a90e2">
+    <link rel="icon" type="image/png" href="/icons/icon-192.png">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
 </head>
+
 <body>
 
     <div class="app-container">
         <header>
-            <h1>Météo PWA 🌦️</h1>
+            <h1>Météo</h1>
             <button id="theme-toggle" class="icon-btn" aria-label="Changer le thème">🌓</button>
         </header>
 
         <div class="controls">
             <button id="notify-btn" class="notify-btn">🔔 Activer les notifications</button>
         </div>
-
         <div class="search-box">
             <input type="text" id="city-input" placeholder="Entrez une ville (ex: Paris)...">
             <button id="search-btn" onclick="handleSearch()">🔍</button>
@@ -58,7 +60,7 @@
 
             <h3>Prochaines heures</h3>
             <div id="hourly-list" class="hourly-container">
-                </div>
+            </div>
         </section>
 
         <section id="favorites-section" class="favorites-section hidden">
@@ -68,13 +70,6 @@
     </div>
 
     <script src="app.js"></script>
-    
-    <script>
-        document.getElementById('search-btn').addEventListener('click', handleSearch);
-        document.getElementById('city-input').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handleSearch();
-        });
-        document.getElementById('notify-btn').addEventListener('click', requestNotificationPermission);
-    </script>
 </body>
+
 </html>
